@@ -1,0 +1,38 @@
+name: Verify forms
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  form:
+    name: ${{ matrix.form }} (default)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        form: [cli, http-service]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install templetry
+        run: |
+          curl -sL -o /usr/local/bin/templetry \
+            "https://github.com/Templetry/engine/releases/download/v1.4.0/templetry-linux-amd64"
+          chmod +x /usr/local/bin/templetry
+      - name: Render
+        run: |
+          templetry render --template "./${{ matrix.form }}" --out "$RUNNER_TEMP/out" \
+            --set "project_name=Verify App" --set "module_path=github.com/verify/app"
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+      - name: Build and test rendered output
+        working-directory: ${{ runner.temp }}/out
+        run: |
+          go build ./...
+          go test ./...

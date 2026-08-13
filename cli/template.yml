@@ -1,0 +1,33 @@
+schema_version: 1
+name: go-cli
+description: Go CLI starter — stdlib flags, versioned binary, table-driven tests
+platform: cli
+framework: go
+
+variables:
+  - key: project_name
+    label: Project name
+    type: string
+    pattern: "^[A-Za-z][A-Za-z0-9 ]*$"
+  - key: module_path
+    label: Go module path
+    type: string
+    pattern: "^[a-z0-9]+(\\.[a-z0-9-]+)*(/[A-Za-z0-9._~-]+)+$"
+
+identity:
+  - from: "example.com/template-app"   # module path in go.mod and imports
+    to: "{module_path}"
+  - from: "TemplateApp"                # docs
+    to: "{project_name.pascal}"
+  - from: "template-app"               # binary name, cmd dir
+    to: "{project_name.kebab}"
+
+features:
+  - key: github_actions
+    label: GitHub Actions CI
+    default: true
+    files: [".github/**"]
+
+verify:
+  image: golang:1.26
+  run: go build ./... && go test ./...
