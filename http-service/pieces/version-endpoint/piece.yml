@@ -1,0 +1,7 @@
+schema_version: 1
+name: version-endpoint
+description: GET /version endpoint reporting build metadata, wired through the api socket
+variables:
+  - key: version_value
+    label: Version string reported by the endpoint
+    default: 0.1.0

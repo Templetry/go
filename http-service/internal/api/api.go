@@ -6,11 +6,23 @@ import (
 	"net/http"
 )
 
+// registrars is the piece socket: decoupled units (Templetry pieces) add
+// themselves here from their own file's init, so NewMux never needs editing.
+var registrars []func(*http.ServeMux)
+
+// Register adds a route registrar. Call it from an init function.
+func Register(f func(*http.ServeMux)) {
+	registrars = append(registrars, f)
+}
+
 // NewMux builds the service's router.
 func NewMux() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", handleHealth)
 	mux.HandleFunc("GET /api/hello/{name}", handleHello)
+	for _, register := range registrars {
+		register(mux)
+	}
 	return mux
 }
 
