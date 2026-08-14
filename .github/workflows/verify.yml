@@ -16,13 +16,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        form: [cli, http-service]
+        form: [cli, http-service, rest-sqlite]
     steps:
       - uses: actions/checkout@v4
       - name: Install templetry
         run: |
           curl -sL -o /usr/local/bin/templetry \
-            "https://github.com/Templetry/engine/releases/download/v1.4.0/templetry-linux-amd64"
+            "https://github.com/Templetry/engine/releases/download/v1.7.0/templetry-linux-amd64"
           chmod +x /usr/local/bin/templetry
       - name: Render
         run: |
@@ -38,21 +38,27 @@ jobs:
           go test ./...
 
   piece:
-    name: http-service + version-endpoint
+    name: ${{ matrix.case.form }} + ${{ matrix.case.piece }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        case:
+          - { form: http-service, piece: version-endpoint, args: "--set version_value=1.2.3" }
+          - { form: rest-sqlite, piece: crud-resource, args: "--set entity=Product" }
     steps:
       - uses: actions/checkout@v4
       - name: Install templetry
         run: |
           curl -sL -o /usr/local/bin/templetry \
-            "https://github.com/Templetry/engine/releases/download/v1.4.0/templetry-linux-amd64"
+            "https://github.com/Templetry/engine/releases/download/v1.7.0/templetry-linux-amd64"
           chmod +x /usr/local/bin/templetry
       - name: Render and adopt the piece
         run: |
-          templetry render --template ./http-service --out "$RUNNER_TEMP/out" \
+          templetry render --template "./${{ matrix.case.form }}" --out "$RUNNER_TEMP/out" \
             --set "project_name=Verify App" --set "module_path=github.com/verify/app"
-          templetry add version-endpoint "$RUNNER_TEMP/out" --template ./http-service \
-            --set version_value=1.2.3
+          templetry add "${{ matrix.case.piece }}" "$RUNNER_TEMP/out" \
+            --template "./${{ matrix.case.form }}" ${{ matrix.case.args }}
       - uses: actions/setup-go@v5
         with:
           go-version: "1.26"

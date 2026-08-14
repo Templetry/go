@@ -1,0 +1,18 @@
+schema_version: 1
+name: crud-resource
+description: A full CRUD resource — table, repository, routes and tests — for one entity
+variables:
+  - key: entity
+    label: Entity name (singular, e.g. Product)
+    default: Item
+identity:
+  - from: "TemplateEntity"         # struct and repository types
+    to: "{entity.pascal}"
+  - from: "templateEntity"         # receivers and locals
+    to: "{entity.camel}"
+  - from: "template_entities"      # table name
+    to: "{entity.snake}s"
+  - from: "template_entity"        # file names
+    to: "{entity.snake}"
+  - from: "template-entities"      # route path segment
+    to: "{entity.kebab}s"

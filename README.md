@@ -7,11 +7,18 @@ Go templates for [Templetry](https://github.com/Templetry). One **parent repo**,
 | [`cli/`](cli/) | CLI starter — stdlib flags, versioned binary, table-driven tests | ✅ ready |
 | [`http-service/`](http-service/) | HTTP service — stdlib mux (1.22 patterns), httptest suite, distroless Dockerfile | ✅ ready |
 
-Pieces ([ADR-0014](https://github.com/Templetry/wiki/blob/main/adr/0014-lazy-pieces.md)): `http-service` ships `version-endpoint`, which adds `GET /version` **without touching a single existing file** — the form exposes an `api.Register` socket and the piece plugs in from its own `init`. That is the documented pattern for ecosystems whose wiring lives in code rather than in JSON.
+| [`rest-sqlite/`](rest-sqlite/) | REST API over SQLite — pure-Go driver (no CGO), migrations, repositories, httptest suite | ✅ ready |
+
+Pieces ([ADR-0014](https://github.com/Templetry/wiki/blob/main/adr/0014-lazy-pieces.md)) live in `_pieces/` (the underscore keeps `go build ./...` clean in the template itself) and wire themselves through **sockets** — `api.Register` for routes, `store.Register` for schema — so adopting one touches no existing file:
+
+| Form | Piece | What it adds |
+|---|---|---|
+| `http-service` | `version-endpoint` | `GET /version` with a configurable version string |
+| `rest-sqlite` | `crud-resource` | **A whole entity**: table, repository, CRUD routes and tests, renamed to your object |
 
 ```sh
 templetry pieces ./my-svc
-templetry add version-endpoint ./my-svc --set version_value=1.2.3
+templetry add crud-resource ./my-svc --set entity=Product
 ```
 
 ## Usage

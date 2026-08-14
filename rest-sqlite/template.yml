@@ -1,0 +1,37 @@
+schema_version: 1
+name: go-rest-sqlite
+description: REST API over SQLite — pure-Go driver (no CGO), migrations at startup, repository layer, httptest suite
+platform: backend
+framework: go
+
+variables:
+  - key: project_name
+    label: Project name
+    type: string
+    pattern: "^[A-Za-z][A-Za-z0-9 ]*$"
+  - key: module_path
+    label: Go module path
+    type: string
+    pattern: "^[a-z0-9]+(\\.[a-z0-9-]+)*(/[A-Za-z0-9._~-]+)+$"
+
+identity:
+  - from: "example.com/template-app"   # module path in go.mod and imports
+    to: "{module_path}"
+  - from: "TemplateApp"                # docs
+    to: "{project_name.pascal}"
+  - from: "template-app"               # service name, db file, docker tag
+    to: "{project_name.kebab}"
+
+features:
+  - key: docker
+    label: Dockerfile (multi-stage, distroless)
+    default: true
+    files: ["Dockerfile", ".dockerignore"]
+  - key: github_actions
+    label: GitHub Actions CI
+    default: true
+    files: [".github/**"]
+
+verify:
+  image: golang:1.26
+  run: go build ./... && go test ./...

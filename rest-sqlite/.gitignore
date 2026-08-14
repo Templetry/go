@@ -1,0 +1,7 @@
+/server
+/server.exe
+/dist/
+*.db
+*.db-wal
+*.db-shm
+*.log
