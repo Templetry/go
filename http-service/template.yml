@@ -1,8 +1,8 @@
 schema_version: 1
 name: go-http-service
 description: Go HTTP service — stdlib mux (1.22 patterns), health endpoint, httptest suite
-platform: backend
-framework: go
+kinds: [backend]
+languages: [go]
 
 variables:
   - key: project_name

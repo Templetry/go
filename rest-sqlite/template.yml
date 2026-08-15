@@ -1,8 +1,9 @@
 schema_version: 1
 name: go-rest-sqlite
 description: REST API over SQLite — pure-Go driver (no CGO), migrations at startup, repository layer, httptest suite
-platform: backend
-framework: go
+kinds: [backend, database]
+languages: [go]
+frameworks: [sqlite]
 
 variables:
   - key: project_name

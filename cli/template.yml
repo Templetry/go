@@ -1,8 +1,8 @@
 schema_version: 1
 name: go-cli
 description: Go CLI starter — stdlib flags, versioned binary, table-driven tests
-platform: cli
-framework: go
+kinds: [cli]
+languages: [go]
 
 variables:
   - key: project_name
