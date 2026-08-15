@@ -23,11 +23,7 @@ jobs:
         form: [cli, http-service, rest-sqlite]
     steps:
       - uses: actions/checkout@v4
-      - name: Install templetry
-        run: |
-          curl -fsSL -o /usr/local/bin/templetry \
-            "https://github.com/Templetry/engine/releases/download/v1.7.0/templetry-linux-amd64"
-          chmod +x /usr/local/bin/templetry
+      - uses: Templetry/.github/actions/setup-templetry@main
       - name: Render
         run: |
           templetry render --template "./${{ matrix.form }}" --out "$RUNNER_TEMP/out" \
@@ -52,11 +48,7 @@ jobs:
           - { form: rest-sqlite, piece: crud-resource, args: "--set entity=Product" }
     steps:
       - uses: actions/checkout@v4
-      - name: Install templetry
-        run: |
-          curl -fsSL -o /usr/local/bin/templetry \
-            "https://github.com/Templetry/engine/releases/download/v1.7.0/templetry-linux-amd64"
-          chmod +x /usr/local/bin/templetry
+      - uses: Templetry/.github/actions/setup-templetry@main
       - name: Render and adopt the piece
         run: |
           templetry render --template "./${{ matrix.case.form }}" --out "$RUNNER_TEMP/out" \
