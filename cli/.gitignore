@@ -2,3 +2,4 @@
 /template-app.exe
 /dist/
 *.log
+.env.local

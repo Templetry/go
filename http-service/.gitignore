@@ -2,3 +2,4 @@
 /server.exe
 /dist/
 *.log
+.env.local

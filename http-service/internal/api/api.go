@@ -15,10 +15,33 @@ func Register(f func(*http.ServeMux)) {
 	registrars = append(registrars, f)
 }
 
+// options is what NewMux was configured with.
+type options struct {
+	environment string
+}
+
+// Option configures the mux. Variadic on purpose: NewMux() keeps compiling,
+// so the piece socket and existing callers need no change.
+type Option func(*options)
+
+// tpl:if environments
+
+// WithEnvironment makes /healthz report the active profile.
+func WithEnvironment(name string) Option {
+	return func(o *options) { o.environment = name }
+}
+
+// tpl:endif
+
 // NewMux builds the service's router.
-func NewMux() *http.ServeMux {
+func NewMux(opts ...Option) *http.ServeMux {
+	var cfg options
+	for _, apply := range opts {
+		apply(&cfg)
+	}
+
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /healthz", handleHealth)
+	mux.HandleFunc("GET /healthz", handleHealth(cfg))
 	mux.HandleFunc("GET /api/hello/{name}", handleHello)
 	for _, register := range registrars {
 		register(mux)
@@ -26,8 +49,14 @@ func NewMux() *http.ServeMux {
 	return mux
 }
 
-func handleHealth(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+func handleHealth(cfg options) http.HandlerFunc {
+	return func(w http.ResponseWriter, _ *http.Request) {
+		body := map[string]string{"status": "ok"}
+		if cfg.environment != "" {
+			body["environment"] = cfg.environment
+		}
+		writeJSON(w, http.StatusOK, body)
+	}
 }
 
 func handleHello(w http.ResponseWriter, r *http.Request) {

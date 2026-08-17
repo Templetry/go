@@ -24,12 +24,39 @@ var registrars []func(*http.ServeMux, *Server)
 // Register adds a route registrar. Call it from an init function.
 func Register(f func(*http.ServeMux, *Server)) { registrars = append(registrars, f) }
 
+// options is what NewMux was configured with.
+type options struct {
+	environment string
+}
+
+// Option configures the mux. Variadic on purpose: NewMux(db) keeps
+// compiling, so the piece socket and existing callers need no change.
+type Option func(*options)
+
+// tpl:if environments
+
+// WithEnvironment makes /healthz report the active profile.
+func WithEnvironment(name string) Option {
+	return func(o *options) { o.environment = name }
+}
+
+// tpl:endif
+
 // NewMux builds the router for a database handle.
-func NewMux(db *sql.DB) *http.ServeMux {
+func NewMux(db *sql.DB, opts ...Option) *http.ServeMux {
+	var cfg options
+	for _, apply := range opts {
+		apply(&cfg)
+	}
+
 	s := &Server{DB: db, Notes: store.Notes{DB: db}}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, _ *http.Request) {
-		WriteJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+		body := map[string]string{"status": "ok"}
+		if cfg.environment != "" {
+			body["environment"] = cfg.environment
+		}
+		WriteJSON(w, http.StatusOK, body)
 	})
 	mux.HandleFunc("POST /api/notes", s.createNote)
 	mux.HandleFunc("GET /api/notes", s.listNotes)

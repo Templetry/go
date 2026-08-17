@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"os"
 
+	// tpl:if environments
+	"example.com/template-app/internal/config"
+	// tpl:endif
 	"example.com/template-app/internal/greet"
 )
 
@@ -20,5 +23,15 @@ func main() {
 		fmt.Println("template-app", version)
 		os.Exit(0)
 	}
+
+	// tpl:if environments
+	// No `env` subcommand: adding one would change the CLI's shape, which a
+	// feature must not do. The profile changes what the existing run does —
+	// diagnostics go to stderr, so piping stdout stays clean.
+	if cfg, err := config.Load(".", ""); err == nil && cfg.VerboseErrors {
+		fmt.Fprintf(os.Stderr, "[%s] log level %s\n", cfg.Environment, cfg.LogLevel)
+	}
+	// tpl:endif
+
 	fmt.Println(greet.Greeting(*name))
 }

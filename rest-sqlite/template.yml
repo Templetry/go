@@ -24,6 +24,15 @@ identity:
     to: "{project_name.kebab}"
 
 features:
+  - key: environments
+    label: development / staging / production profiles (ADR-0018)
+    default: true
+    files:
+      - "internal/config/**"
+      - ".env.development"
+      - ".env.staging"
+      - ".env.production"
+
   - key: docker
     label: Dockerfile (multi-stage, distroless)
     default: true
@@ -32,6 +41,11 @@ features:
     label: GitHub Actions CI
     default: true
     files: [".github/**"]
+
+presets:
+  - key: minimal
+    label: Single configuration, no Docker
+    features: {environments: false, docker: false}
 
 verify:
   image: golang:1.26
