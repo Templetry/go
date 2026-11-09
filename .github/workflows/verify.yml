@@ -34,7 +34,7 @@ jobs:
             --set "project_name=Verify App" --set "module_path=github.com/verify/app"
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.26"
+          go-version: "1.27"
       - name: Build and test rendered output
         working-directory: ${{ runner.temp }}/out
         run: |
@@ -61,7 +61,7 @@ jobs:
             --template "./${{ matrix.case.form }}" ${{ matrix.case.args }}
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.26"
+          go-version: "1.27"
       - name: Build and test augmented output
         working-directory: ${{ runner.temp }}/out
         run: |
